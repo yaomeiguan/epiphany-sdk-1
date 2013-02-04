@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Copyright (C) 2009, 2011 Embecosm Limited
+# Copyright (C) 2009, 2011, 2012, 2013 Embecosm Limited
 
 # Contributor Joern Rennecke <joern.rennecke@embecosm.com>
 # Contributor Jeremy Bennett <jeremy.bennett@embecosm.com>
@@ -130,7 +130,7 @@ echo "Configuring tools..."
 mkdir -p "${build_dir}" && cd "${build_dir}" \
   && "${unified_src}/configure" --target=epiphany-elf \
     --with-pkgversion="Epiphany toolchain 20120120 (built `date +%Y%m%d`)" \
-    --with-bugurl=support-sdk@adapteva.com \
+    --with-bugurl="http://forums.parallella.org/viewforum.php?f=13" \
     --enable-fast-install=N/A \
     --enable-languages=c,c++ --prefix="${install_dir}" \
     --with-headers="$(absolutedir ../src/newlib/libc/include)" \
