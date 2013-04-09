@@ -21,24 +21,15 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.          
 
-# Usage: ./build-toolchain.sh [ --force ] [ --build-dir <build_directory>]
+# Usage: ./build-toolchain.sh [ --build-dir <build_directory>]
 #                 [--enable-cgen-maint]
 #                 [ --unified-dir <unified_directory> ]
 #                 [ --install-dir <install_directory> ]
-# --force: remove previous unified source / build directories.
 # --build-dir: specify name for build directory.
 # --enable-cgen-maint: pass down to configure, for rebuilding
 #                    opcodes / binutils after a change to the cgen description.
 # --unified-dir: specify name for unified src directory.
 # --install-dir: specify name for install directory.
-
-component_dirs='../gcc ../src'
-unified_src="${PWD}/../srcw"
-build_dir="${PWD}/../bld-epiphany"
-install_dir="${PWD}/../INSTALL"
-
-# The assembler and/or linker are broken so that constant merging doesn't work.
-export CFLAGS_FOR_TARGET='-O2 -g'
 
 # Check for relative directory and makes it absolute
 absolutedir() {
@@ -48,13 +39,25 @@ absolutedir() {
   esac
 }
 
+# Find the absolute path of our directory
+basedir=`dirname "$0"`
+basedir=`(cd "${basedir}/.." && pwd)`
+
+component_dirs="${basedir}/gcc ${basedir}/src"
+unified_src="${basedir}/srcw"
+build_dir="${basedir}/bld-epiphany"
+install_dir="${basedir}/INSTALL"
+
+# The assembler and/or linker are broken so that constant merging doesn't work.
+export CFLAGS_FOR_TARGET='-O2 -g'
+
+
 # Prints usage to terminal
 usage() {
-  echo " Usage: $0 [ --force ] [ --build-dir <build_directory>]"
+  echo " Usage: $0 [ --build-dir <build_directory>]"
   echo "                 [--enable-cgen-maint]"
   echo "                 [ --unified-dir <unified_directory> ]"
   echo "                 [ --install-dir <install_directory> ]"
-  echo " --force: remove previous unified source / build directories."
   echo " --build-dir: specify name for build directory."
   echo " --enable-cgen-maint: pass down to configure, for rebuilding"
   echo "                    opcodes / binutils after a change to the cgen description."
@@ -82,8 +85,6 @@ CONFIG_EXTRA_OPTS=""
 until
   opt=$1
   case ${opt} in
-    --force)
-      rm -rf ${unified_src} ${build_dir} ${install_dir} ;;
     --build-dir)
       build_dir=$(absolutedir "$2"); shift ;;
     --enable-cgen-maint)
@@ -101,8 +102,11 @@ until
     shift
 done
 
+# Clean up old builds
+rm -rf "${unified_src}" "${build_dir}" "${install_dir}"
+
 # Set up a log
-logfile=$(echo "${PWD}")/../build-$(date -u +%F-%H%M).log
+logfile=${basedir}/build-$(date -u +%F-%H%M).log
 rm -f "${logfile}"
 
 echo "START BUILD: $(date)" >> ${logfile}
